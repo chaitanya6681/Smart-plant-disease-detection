@@ -10,11 +10,14 @@ import cv2
 st.set_page_config(page_title="Plant Disease Detector 🌿", layout="wide")
 
 # -------- LOAD MODEL (FIXED) --------
+import tensorflow as tf
+
 @st.cache_resource
 def load_model():
     return tf.keras.models.load_model(
         "model/plant_disease_model.h5",
-        compile=False   # ✅ FIX
+        compile=False,
+        safe_mode=False   # ✅ ADD THIS LINE
     )
 
 model = load_model()
