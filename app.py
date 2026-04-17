@@ -9,8 +9,15 @@ import cv2
 # -------- PAGE CONFIGURATION --------
 st.set_page_config(page_title="Plant Disease Detector 🌿", layout="wide")
 
-# -------- LOAD MODEL --------
-model = tf.keras.models.load_model("model/plant_disease_model.h5")
+# -------- LOAD MODEL (FIXED) --------
+@st.cache_resource
+def load_model():
+    return tf.keras.models.load_model(
+        "model/plant_disease_model.h5",
+        compile=False   # ✅ FIX
+    )
+
+model = load_model()
 
 classes = ["Early Blight","Healthy","Late Blight"]
 
@@ -93,7 +100,7 @@ disease_info = {
     }
 }
 
-# -------- STYLE (YOUR ORIGINAL BACKGROUND KEPT) --------
+# -------- STYLE --------
 st.markdown("""
 <style>
 
@@ -215,7 +222,6 @@ if st.session_state.page=="home":
             image = Image.open(file)
             st.image(image, width=350)
 
-            # -------- BLUR CHECK --------
             if is_blurry(image):
                 st.warning("⚠️ Image is too blurry. Please upload a clearer leaf image.")
 
@@ -223,7 +229,8 @@ if st.session_state.page=="home":
 
                 if st.button("Analyze 🌿"):
 
-                    result = predict(image)
+                    with st.spinner("Analyzing image... 🌿"):
+                        result = predict(image)
 
                     if result == "Invalid Image":
                         st.warning("⚠️ Please upload plant leaf image.")
